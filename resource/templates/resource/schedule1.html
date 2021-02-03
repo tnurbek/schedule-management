@@ -1,0 +1,105 @@
+{% extends 'action/base.html' %}
+{% load static %}
+{% block jumbotron %}
+    <br><br>
+{% endblock %}
+
+{% block content %}
+    <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Doctor Timetable</h2>
+    <div class="divider-custom">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon"><i class="fas fa-clock"></i></div>
+        <div class="divider-custom-line"></div>
+    </div>
+    <div class="row">
+        <div class="container">
+            <div class="col-md-8 col-lg-8 col-sm-12 offset-sm-0 offset-lg-2 offset-md-2">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-10 col-md-10 col-sm-10">
+                            <label for="doctor">Choose a doctor:</label>
+                            <select name="doctor" id="doctor" class="form-control select2-container">
+                                <option value=""></option>
+                                {% for doctor in doctors %}
+                                    <option value="{{ doctor.id }}">{{ doctor.fullname }}
+                                        - {{ doctor.specialty.specialty_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-md-2 col-sm-2">
+                            <label for="">.</label>
+                            <button id="searchbutton" class="btn btn-dark">Search</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="content">
+                    <table class="table table-sm table-bordered table-hover">
+                        <thead class="text-center thead-light">
+                        <tr>
+                            <th width="10%">#</th>
+                            <th id="monday" width="15%">monday</th>
+                            <th id="tuesday" width="15%">tuesday</th>
+                            <th id="wednesday" width="15%">wednesday</th>
+                            <th id="thursday" width="15%">thursday</th>
+                            <th id="friday" width="15%">friday</th>
+                            <th id="saturday" width="15%">saturday</th>
+                        </tr>
+                        </thead>
+                        <tbody class="text-center" id="content-body">
+
+                        </tbody>
+                        <tbody class="text-center">
+                        <tr>
+                            <td>info</td>
+                            <td colspan="2" class="bg-danger">won't work</td>
+                            <td colspan="2" class="bg-success">works</td>
+                            <td colspan="2" class="bg-info">didn't set yet</td>
+                        </tr>
+                        <tr>
+                            <td><input type="radio"></td>
+                            <td>
+                                <div>
+                                    <input type="checkbox" name="check1" id="check1">
+                                    <label for="check1">Choice1</label>
+                                </div>
+                            </td>
+                            <td>
+                                <div>
+                                    <input type="checkbox" name="check2" id="check2">
+                                    <label for="check2">Choice2</label>
+                                </div>
+                            </td>
+                            <td>
+                                <div>
+                                    <input type="checkbox" name="check3" id="check3">
+                                    <label for="check3">Choice3</label>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+        $('#doctor').on('input', function () {
+            doctor_id = $(this).val();
+            console.log(doctor_id);
+        });
+        $('#searchbutton').on('click', function () {
+            doctor_id = $('#doctor').val();
+            $.ajax({
+                url: "{% url 'doctor_info' %}",
+                method: "GET",
+                data: {doctor_id: doctor_id},
+                success: function (data) {
+                    $('#content-body').html(data.text);
+                }
+            });
+        });
+    </script>
+{% endblock %}

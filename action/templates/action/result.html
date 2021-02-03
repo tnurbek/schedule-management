@@ -1,0 +1,42 @@
+{% extends 'action/base.html' %}
+{% load static %}
+{% block jumbotron %}
+    <br><br>
+{% endblock %}
+
+{% block content %}
+    <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Schedule of pacients</h2>
+    <div class="divider-custom">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon"><i class="fas fa-wrong-circle"></i></div>
+        <div class="divider-custom-line"></div>
+    </div>
+    <div class="row">
+        <div class="container table-responsive">
+            <table class="table table-sm table-bordered table-hover">
+                <thead class="thead-light">
+                <tr>
+                    <th width="10%">#</th>
+                    <th width="20%">Case</th>
+                    <th width="50%">Title</th>
+                    <th width="20%">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for person in results %}
+                    <tr>
+                        <td>{{ person.id }}</td>
+                        <td>{{ person.pacients_file.title }}</td>
+                        <td>{{ person.title }}</td>
+                        <td><a href="{{ person.file.url }}" download class="btn-sm btn-dark">Download</a></td>
+                    </tr>
+                    <div>
+
+                    </div>
+                {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,146 @@
+{% extends 'action/base.html' %}
+{% load static %}
+{% block jumbotron %}
+    <br><br>
+{% endblock %}
+
+{% block content %}
+    <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">{{ pacient.fullname }}</h2>
+    <div class="divider-custom">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon"><i class="fas fa-clock"></i></div>
+        <div class="divider-custom-line"></div>
+    </div>
+    <div class="row">
+        <div class="container">
+            <div class="col-md-10 col-lg-10 col-sm-12 offset-sm-0 offset-lg-1 offset-md-1">
+                <div id="content">
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Specialists needed</th>
+                            <th>Actions</th>
+                            <th>History</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for spec in pacient.specialty.all %}
+                            <tr>
+                                <td>{{ spec.id }}</td>
+                                <td>{{ spec.specialty_name }}</td>
+                                <td>
+                                    <button class="btn-sm choose_button" data-id="{{ spec.id }}"
+                                            data-text="{{ spec.specialty_name }}" data-toggle="modal"
+                                            data-target="#exampleModal"
+                                            {% for each in schedule %}
+                                                {% if each.doctor.specialty_id == spec.id %}
+                                            disabled
+                                                {% endif %}
+                                            {% endfor %}> MAKE
+                                    </button>
+                                </td>
+                                <td>
+                                    {% for each in history %}
+                                        {% if spec.id == each.doctor.specialty_id %}
+                                            {{ each.date }} / {{ each.time|time:"H:i" }}<br>
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Make an Appointment:</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="{% url 'save_schedule' pacient.id %}" method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="specialty">Specialty</label>
+                            <input type="text" id="specialty" name="specialty" class="form-control" value="choose"
+                                   disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="doctor">Doctor</label>
+                            <select name="doctor" class="form-control" id="doctor">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <div class="col">
+                                <label for="date">Date</label>
+                                <select name="date" id="date" class="form-control">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                            <div class="col">
+                                <label for="time">Time</label>
+                                <select name="time" id="time" class="form-control">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                        <br>
+                        <input type="submit" name="save" value="SAVE" class="btn btn-info float-right">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+        $('.choose_button').on('click', function () {
+            spec_id = $(this).attr('data-id');
+            spec_name = $(this).attr('data-text');
+            $.ajax({
+                url: "{% url 'getdocs_by_spec' %}",
+                method: "GET",
+                data: {specialty_id: spec_id},
+                success: function (data) {
+                    $('#specialty').val(spec_name);
+                    $('#doctor').html(data.output);
+                }
+            });
+        });
+        $('#doctor').on('input', function () {
+            var doctor_id = $(this).val();
+            $.ajax({
+                url: "{% url 'getdates_by_doc' %}",
+                method: "GET",
+                data: {doctor_id: doctor_id},
+                success: function (data) {
+                    $('#date').html(data.days_list);
+                }
+            });
+        });
+        $('#date').on('input', function () {
+            doctor_id = $('#doctor').val();
+            day = $(this).val();
+            if (doctor_id != '') {
+                $.ajax({
+                    url: "{% url 'get_available_times' %}",
+                    method: "GET",
+                    data: {doctor_id: doctor_id, day: day},
+                    success: function (data) {
+                        $('#time').html(data.output);
+                    }
+                });
+            }
+        });
+    </script>
+{% endblock %}

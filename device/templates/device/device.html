@@ -1,0 +1,174 @@
+{% extends 'action/base.html' %}
+{% load static %}
+{% block jumbotron %}
+    <br><br>
+{% endblock %}
+
+{% block content %}
+    <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">{{ device.name }}</h2>
+    <div class="divider-custom">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon"><i class="fas fa-clock"></i></div>
+        <div class="divider-custom-line"></div>
+    </div>
+    <div class="row">
+        <div class="container-fluid">
+            <div class="col-md-12 col-lg-12 col-sm-12 offset-sm-0 offset-lg-0 offset-md-0">
+                {#                <div class="form-group">#}
+                {#                    <label for="service">Service</label>#}
+                {#                    <select name="service" id="service" class="form-control" data-id="{{ device.id }}">#}
+                {#                        <option value=""></option>#}
+                {#                        {% for service in device.services.all %}#}
+                {#                            <option value="{{ service.id }}">{{ service.name }} - {{ service.duration }} min</option>#}
+                {#                        {% endfor %}#}
+                {#                    </select>#}
+                {#                </div>#}
+                <ul class="pagination float-right">
+                    <li class="page-item"><a class="page-link"
+                                             href="{% url 'device_weekday' device.id weeknum|add:-1 %}">Previous</a>
+                    </li>
+                    <li class="page-item"><a class="page-link" href="{% url 'device' device.id %}">This week</a></li>
+                    <li class="page-item"><a class="page-link"
+                                             href="{% url 'device_weekday' device.id weeknum|add:1 %}">Next</a></li>
+                </ul>
+                <div id="content">
+                    <table class="table table-sm table-bordered table-hover">
+                        <thead class="text-center thead-light">
+                        <tr>
+                            <th>#</th>
+                            {% for day in days_list %}
+                                <th id="day{{ forloop.counter }}" data-result="{{ day }}">{{ day }}</th>
+                            {% endfor %}
+                        </tr>
+                        </thead>
+                        <thead>
+                        <tr>
+                            <td>weekdays [{{ weeknum }}]</td>
+                            <td>monday</td>
+                            <td>tuesday</td>
+                            <td>wednesday</td>
+                            <td>thursday</td>
+                            <td>friday</td>
+                            <td>saturday</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            {% for day in days_list %}
+                                <td class="text-center">
+                                    <a href="#" class="btn-sm btn-success make-appointment"
+                                       data-deviceid="{{ device.id }}"
+                                       data-text="{{ device.name }}" data-numeration="day{{ forloop.counter }}" data-toggle="modal"
+                                       data-target="#exampleModal">APPOINT</a>
+                                </td>
+                            {% endfor %}
+
+                        </tr>
+                        </thead>
+                        <tbody id="body-content" class="text-center">
+                        <input type="hidden" id="output" value="{{ output }}">
+                        </tbody>
+                    </table>
+                    <div class="float-right">
+                        <button class="btn btn-info" data-toggle="modal" data-target="#exampleModal">+</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="" method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="patient">Choose a patient:</label>
+                            <select name="patient" id="patient" class="form-control">
+                                <option value=""></option>
+                                {% for patient in patients %}
+                                    <option value="{{ patient.id }}">{{ patient.fullname }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <div class="col">
+                                <label for="device">Device</label>
+                                <input type="text" id="device" name="device" class="form-control" value="choose"
+                                       disabled>
+                            </div>
+                            <div class="col">
+                                <label for="date">Date</label>
+                                <input name="date" id="date" class="form-control" disabled>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="col">
+                                <label for="service">Service</label>
+                                <select name="service" class="form-control" id="service">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                            <div class="col">
+                                <label for="time">Time</label>
+                                <select name="time" id="time" class="form-control">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                        <br>
+                        <input type="hidden" name="device_id" id="device_id">
+                        <input type="submit" name="save" value="SAVE" class="btn btn-info float-right">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+        $(document).ready(function () {
+            output = $('#output').val();
+            $('#body-content').html(output);
+        });
+        $('.make-appointment').on('click', function () {
+            var device_id = $(this).data('deviceid');
+            var device_name = $(this).data('text');
+            var num = $(this).data('numeration');
+            var day = $('#'+num).data('result');
+            console.log(day);
+            $.ajax({
+                url: "{% url 'get_services_of_device' %}",
+                method: "GET",
+                data: {device_id: device_id},
+                success: function (data) {
+                    console.log(data);
+                    $('#device').val(device_name);
+                    $('#device_id').val(device_id);
+                    $('#service').html(data.output);
+                    $('#date').val(day);
+                }
+            });
+        });
+        $('#service').on('input', function () {
+            var service_id = $(this).val();
+            var device_id = $('#device_id').val();
+            var day = $('#date').val();
+            $.ajax({
+                url: "{% url 'get_available_times_device' %}",
+                    method: "GET",
+                    data: {device_id: device_id, day: day, service_id: service_id},
+                    success: function (data) {
+                        $('#time').html(data.output);
+                    }
+            });
+         });
+    </script>
+{% endblock %}

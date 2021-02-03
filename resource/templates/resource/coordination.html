@@ -1,0 +1,176 @@
+{% extends 'action/base.html' %}
+{% load static %}
+{% block jumbotron %}
+    <br><br>
+{% endblock %}
+
+{% block content %}
+    <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">COORDINATION PAGE</h2>
+    <div class="divider-custom">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon"><i class="fas fa-clock"></i></div>
+        <div class="divider-custom-line"></div>
+    </div>
+    <div class="row">
+        <div class="container">
+            <div class="col-md-8 col-lg-8 col-sm-12 offset-sm-0 offset-lg-2 offset-md-2">
+                <form action="{% url 'save_schedule' %}" method="post" class="form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="doctor">Choose a doctor:</label>
+                        <select name="doctor" id="doctor" class="form-control select2-container">
+                            <option value=""></option>
+                            {% for doctor in doctors %}
+                                <option value="{{ doctor.id }}">{{ doctor.fullname }}
+                                    - {{ doctor.specialty.specialty_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="weekday">Week Day:</label>
+                                <select name="weekday" id="weekday" class="form-control">
+                                    <option value=""></option>
+                                    <option value="monday">Понедельник</option>
+                                    <option value="tuesday">Вторник</option>
+                                    <option value="wednesday">Среда</option>
+                                    <option value="thursday">Четверг</option>
+                                    <option value="friday">Пятница</option>
+                                    <option value="saturday">Суббота</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label for="duration">Duration:</label>
+                                <select name="duration" id="duration" class="form-control">
+                                    <option value=""></option>
+                                    <option value="5">5</option>
+                                    <option value="10">10</option>
+                                    <option value="12">12</option>
+                                    <option value="15">15</option>
+                                    <option value="20">20</option>
+                                    <option value="30">30</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="bg-secondary">
+                    <div class="form-froup">
+                        <label for="">1 part of the day:</label>
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="work1_start">Starting time:</label>
+                                <select name="work1_start" id="work1_start" class="form-control">
+                                    <option value=""></option>
+                                    <option value="1">8:00</option>
+                                    <option value="2">9:00</option>
+                                    <option value="3">10:00</option>
+                                    <option value="4">11:00</option>
+                                    <option value="5">12:00</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label for="work1_end">Ending time:</label>
+                                <select name="work1_end" id="work1_end" class="form-control">
+                                    <option value=""></option>
+                                    <option value="2">9:00</option>
+                                    <option value="3">10:00</option>
+                                    <option value="4">11:00</option>
+                                    <option value="5">12:00</option>
+                                    <option value="6">13:00</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="bg-secondary">
+                    <div class="form-froup">
+                        <label for="">2 part of the day:</label>
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="work2_start">Starting time:</label>
+                                <select name="work2_start" id="work2_start" class="form-control">
+                                    <option value=""></option>
+                                    <option value="7">14:00</option>
+                                    <option value="8">15:00</option>
+                                    <option value="9">16:00</option>
+                                    <option value="10">17:00</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label for="work2_end">Ending time:</label>
+                                <select name="work2_end" id="work2_end" class="form-control">
+                                    <option value=""></option>
+                                    <option value="8">15:00</option>
+                                    <option value="9">16:00</option>
+                                    <option value="10">17:00</option>
+                                    <option value="11">18:00</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="bg-secondary">
+                    <br>
+                    <input type="submit" name="save_schedule" value="SAVE" class="btn btn-secondary float-right">
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+        $('#doctor').on('input', function () {
+            doctor_id = $(this).val();
+            if (doctor_id != '') {
+                $.ajax({
+                    url: "{% url 'get_duration' %}",
+                    method: "GET",
+                    data: {doctor_id: doctor_id},
+                    success: function (data) {
+                        if (data.duration != 0) {
+                            output = '<option selected value="' + data.duration + '">' + data.duration + '</option>';
+                            $('#duration').html(output);
+                        } else {
+                            output = '<option value=""></option>\n' +
+                                '<option value="5">5</option>\n' +
+                                '<option value="10">10</option>\n' +
+                                '<option value="12">12</option>\n' +
+                                '<option value="15">15</option>\n' +
+                                '<option value="20">20</option>\n' +
+                                '<option value="30">30</option>';
+                            $('#duration').html(output);
+                        }
+                    }
+                });
+            } else {
+                output = '<option value=""></option>\n' +
+                    '<option value="5">5</option>\n' +
+                    '<option value="10">10</option>\n' +
+                    '<option value="12">12</option>\n' +
+                    '<option value="15">15</option>\n' +
+                    '<option value="20">20</option>\n' +
+                    '<option value="30">30</option>';
+                $('#duration').html(output);
+            }
+
+        });
+        $('#weekday').on('input', function () {
+            doctor_id = $('#doctor').val();
+            weekday = $(this).val();
+            if (doctor_id != '' && weekday != '') {
+                $.ajax({
+                    url: "{% url 'get_times' %}",
+                    method: "GET",
+                    data: {doctor_id: doctor_id, weekday: weekday},
+                    success: function (data) {
+                        $('#work1_start').html(data.work1_start);
+                        $('#work1_end').html(data.work1_end);
+                        $('#work2_start').html(data.work2_start);
+                        $('#work2_end').html(data.work2_end);
+                        {#console.log(data);#}
+                    }
+                });
+            }
+        });
+    </script>
+{% endblock %}

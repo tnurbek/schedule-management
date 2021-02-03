@@ -1,0 +1,77 @@
+{% extends 'action/base.html' %}
+{% load static %}
+{% block jumbotron %}
+    <br><br>
+{% endblock %}
+
+{% block content %}
+    <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Doctor Timetable</h2>
+    <div class="divider-custom">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon"><i class="fas fa-clock"></i></div>
+        <div class="divider-custom-line"></div>
+    </div>
+    <div class="row">
+        <div class="container">
+            <div class="col-md-10 col-lg-8 col-sm-12 offset-sm-0 offset-lg-2 offset-md-1">
+                <div id="content">
+                    <div class="form-group">
+                        <input type="search" class="form-control" id="search" placeholder="search for doctors...">
+                    </div>
+                    <table class="table table-sm table-bordered table-hover">
+                        <thead class="text-center thead-light">
+                        <tr>
+                            <th width="10%">#</th>
+                            <th id="monday" width="35%">Full Name</th>
+                            <th id="tuesday" width="35%">Specialty</th>
+                            <th id="wednesday" width="20%">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody class="text-center" id="doctor_list">
+                        {% for doctor in doctors %}
+                            <tr>
+                                <td>{{ doctor.id }}</td>
+                                <td>{{ doctor.fullname }}</td>
+                                <td>{{ doctor.specialty.specialty_name }}</td>
+                                <td><a href="{% url 'specific_schedule' doctor.id %}" class="btn-sm btn-secondary">VIEW</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+        $('#doctor').on('input', function () {
+            doctor_id = $(this).val();
+            console.log(doctor_id);
+        });
+        $('#searchbutton').on('click', function () {
+            doctor_id = $('#doctor').val();
+            $.ajax({
+                url: "{% url 'doctor_info' %}",
+                method: "GET",
+                data: {doctor_id: doctor_id},
+                success: function (data) {
+                    $('#content-body').html(data.text);
+                }
+            });
+        });
+        $('#search').on('input', function () {
+            var text = $(this).val();
+            $.ajax({
+                url: "{% url 'doctors_search' %}",
+                method: "GET",
+                data: {search:text},
+                success: function (data) {
+                    $('#doctor_list').html(data.output);
+                }
+            });
+        });
+    </script>
+{% endblock %}

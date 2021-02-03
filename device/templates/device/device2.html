@@ -1,0 +1,286 @@
+{% extends 'action/base.html' %}
+{% load static %}
+{% block jumbotron %}
+    <br><br>
+{% endblock %}
+
+{% block content %}
+    <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">{{ device.name }}</h2>
+    <div class="divider-custom">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon"><i class="fas fa-clock"></i></div>
+        <div class="divider-custom-line"></div>
+    </div>
+    <div class="row">
+        <div class="container-fluid">
+            <div class="col-md-12 col-lg-12 col-sm-12 offset-sm-0 offset-lg-0 offset-md-0">
+                <ul class="pagination float-right">
+                    <li class="page-item"><a class="page-link"
+                                             href="{% url 'device_weekday2' device.id weeknum|add:-1 %}">Previous</a>
+                    </li>
+                    <li class="page-item"><a class="page-link" href="{% url 'device2' device.id %}">This week</a></li>
+                    <li class="page-item"><a class="page-link"
+                                             href="{% url 'device_weekday2' device.id weeknum|add:1 %}">Next</a></li>
+                </ul>
+                <div id="content">
+                    <table class="table table-sm table-bordered table-hover">
+                        <thead class="text-center thead-light">
+                        <tr>
+                            <th>#</th>
+                            {% for day in days_list %}
+                                <th id="day{{ forloop.counter }}" data-result="{{ day }}">{{ day }}</th>
+                            {% endfor %}
+                        </tr>
+                        </thead>
+                        <thead>
+                        <tr>
+                            <td>weekdays [{{ weeknum }}]</td>
+                            <td>monday</td>
+                            <td>tuesday</td>
+                            <td>wednesday</td>
+                            <td>thursday</td>
+                            <td>friday</td>
+                            <td>saturday</td>
+                        </tr>
+                        <tr class="text-center">
+                            <td></td>
+                            {% for stat in stats %}
+                                <td>{{ stat }} min | {{ stat|add:total|stringformat:"i"|slice:"1:" }} min</td>
+                            {% endfor %}
+
+                        </tr>
+                        <tr>
+                            <td></td>
+                            {% for day in days_list %}
+                                <td class="text-center">
+                                    <a href="#" class="btn-sm btn-success make-appointment"
+                                       data-deviceid="{{ device.id }}"
+                                       data-text="{{ device.name }}" data-numeration="day{{ forloop.counter }}"
+                                       data-toggle="modal"
+                                       data-target="#exampleModal">APPOINT</a>
+                                </td>
+                            {% endfor %}
+
+                        </tr>
+                        </thead>
+                        <tbody id="body-content" class="text-center">
+                        <input type="hidden" id="output" value="{{ output }}">
+                        </tbody>
+                    </table>
+                    <div class="float-right">
+                        <button class="btn btn-info" id="patient_statistics" data-week="{{ weeknum }}" data-device="{{ device.id }}" data-toggle="modal" data-target="#exampleModal3">PATIENTS</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="{% url 'save_device_schedule2' %}" method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="patient">Choose a patient:</label>
+                            <select name="patient" id="patient" class="form-control">
+                                <option value=""></option>
+                                {% for patient in patients %}
+                                    <option value="{{ patient.id }}">{{ patient.fullname }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <div class="col">
+                                <label for="device">Device</label>
+                                <input type="text" id="device" name="device" class="form-control" value="choose"
+                                       disabled>
+                            </div>
+                            <div class="col">
+                                <label for="date">Date</label>
+                                <input name="date" id="date" class="form-control" readonly>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="col">
+                                <label for="service">Service</label>
+                                <select name="service" class="form-control" id="service">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                            <div class="col">
+                                <label for="time">Time</label>
+                                <select name="time" id="time" class="form-control">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                        <br>
+                        <input type="hidden" name="device_id" id="device_id">
+                        <input type="submit" name="save" value="SAVE" class="btn btn-info float-right">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="exampleModal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel2"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel2">Patients Device Schedule</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <table class="table table-sm table-bordered">
+                                <tbody>
+                                <tr>
+                                    <th colspan="4">Date: <span id="mdate"></span></th>
+                                </tr>
+                                <tr>
+                                    <th width="25%">patient</th>
+                                    <th width="25%">time</th>
+                                    <th width="25%">duration</th>
+                                    <th width="25%">actions</th>
+                                </tr>
+                                </tbody>
+                                <tbody id="plist">
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="exampleModal3" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel3"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel3">Patients Occurrence</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <table class="table table-sm table-bordered">
+                                <thead class="thead-light">
+                                <tr>
+                                    <th>pacient</th>
+                                    <th># times</th>
+                                    <th>overall time</th>
+                                </tr>
+                                </thead>
+                                <tbody id="pcount">
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+        $(document).ready(function () {
+            output = $('#output').val();
+            $('#body-content').html(output);
+        });
+        $('.make-appointment').on('click', function () {
+            var device_id = $(this).data('deviceid');
+            var device_name = $(this).data('text');
+            var num = $(this).data('numeration');
+            var day = $('#' + num).data('result');
+            console.log(day);
+            $.ajax({
+                url: "{% url 'get_services_of_device' %}",
+                method: "GET",
+                data: {device_id: device_id},
+                success: function (data) {
+                    console.log(data);
+                    $('#device').val(device_name);
+                    $('#device_id').val(device_id);
+                    $('#service').html(data.output);
+                    $('#date').val(day);
+                }
+            });
+        });
+        $('#service').on('input', function () {
+            var service_id = $(this).val();
+            var device_id = $('#device_id').val();
+            var day = $('#date').val();
+            $.ajax({
+                url: "{% url 'get_available_times_device' %}",
+                method: "GET",
+                data: {device_id: device_id, day: day, service_id: service_id},
+                success: function (data) {
+                    $('#time').html(data.output);
+                }
+            });
+        });
+
+        function my_func(device_id, date, start_time) {
+            $('#mdate').html(date);
+            $.ajax({
+                url: "{% url 'get_specific_time_info' %}",
+                method: "GET",
+                data: {device_id: device_id, date: date, start_time: start_time},
+                success: function (data) {
+                    {#console.log(data.output);#}
+                    $('#plist').html(data.output);
+                }
+            });
+        }
+
+        $('#patient_statistics').on('click', function () {
+            var weekday = $(this).data('week');
+            var device_id = $(this).data('device');
+            $.ajax({
+                url: "{% url 'patient_statistics' %}",
+                method: "GET",
+                data: {week_number:weekday, device_id:device_id},
+                success: function (data) {
+                    console.log(data);
+                    $('#pcount').html(data.output);
+                }
+            });
+        });
+    </script>
+{% endblock %}

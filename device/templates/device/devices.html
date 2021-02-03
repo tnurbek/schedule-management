@@ -1,0 +1,64 @@
+{% extends 'action/base.html' %}
+{% load static %}
+{% block jumbotron %}
+    <br><br>
+{% endblock %}
+
+{% block content %}
+    <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Devices In System</h2>
+    <div class="divider-custom">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon"><i class="fas fa-clock"></i></div>
+        <div class="divider-custom-line"></div>
+    </div>
+    <div class="row">
+        <div class="container">
+            <div class="col-md-10 col-lg-10 col-sm-12 offset-sm-0 offset-lg-1 offset-md-1">
+                <div id="content">
+                    <table class="table table-sm table-bordered table-hover">
+                        <thead class="text-center thead-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Name of device:</th>
+                            <th>Services:</th>
+                            <th width="30%">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for device in devices %}
+                            <tr>
+                                <td>{{ device.id }}</td>
+                                <td>{{ device.name }}</td>
+                                <td>
+                                    {% for service in device.services.all %}
+                                        {{ service.name }} - {{ service.duration }} min
+                                        <br>
+                                    {% endfor %}
+
+                                </td>
+                                <td class="text-center">
+                                    <a href="{% url 'device' device.id %}" class="btn-sm btn-dark">VIEW</a>
+                                    <a href="{% url 'device2' device.id %}" class="btn-sm btn-success">VIEW</a>
+                                    {% if device.id not in indices %}
+                                        <form action="{% url 'set_schedule' %}" method="post">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="device_id" value="{{ device.id }}">
+                                            <input type="submit" class="btn-sm disabled" value="SET SCHEDULE">
+                                        </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block script %}
+    <script>
+    </script>
+{% endblock %}

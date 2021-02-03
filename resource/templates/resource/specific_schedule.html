@@ -1,0 +1,51 @@
+{% extends 'action/base.html' %}
+{% load static %}
+{% block jumbotron %}
+    <br><br>
+{% endblock %}
+
+{% block content %}
+    <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">{{ doctor.fullname }}</h2>
+    <div class="divider-custom">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon"><i class="fas fa-clock"></i></div>
+        <div class="divider-custom-line"></div>
+    </div>
+    <div class="row">
+        <div class="container-fluid">
+            <div class="col-md-12 col-lg-12 col-sm-12 offset-sm-0 offset-lg-0 offset-md-0">
+                <div id="content">
+                    <table class="table table-sm table-bordered table-hover">
+                        <thead class="text-center thead-light">
+                        <tr>
+                            <th>#</th>
+                            {% for day in days_list %}
+                                <th width="300px">{{ day }}</th>
+                            {% endfor %}
+{#                            <th id="monday">monday</th>#}
+{#                            <th id="tuesday">tuesday</th>#}
+{#                            <th id="wednesday">wednesday</th>#}
+{#                            <th id="thursday">thursday</th>#}
+{#                            <th id="friday">friday</th>#}
+{#                            <th id="saturday">saturday</th>#}
+{#                            <th>sunday</th>#}
+                        </tr>
+                        </thead>
+                        <tbody class="text-center" id="body-content">
+                        <input type="hidden" id="output" value="{{ output }}">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+    $(document).ready(function () {
+        output = $('#output').val();
+        $('#body-content').html(output);
+    });
+    </script>
+{% endblock %}

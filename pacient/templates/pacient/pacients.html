@@ -1,0 +1,92 @@
+{% extends 'action/base.html' %}
+{% load static %}
+{% block jumbotron %}
+    <br><br>
+{% endblock %}
+
+{% block content %}
+    <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Patients In System</h2>
+    <div class="divider-custom">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon"><i class="fas fa-clock"></i></div>
+        <div class="divider-custom-line"></div>
+    </div>
+    <div class="row">
+        <div class="container">
+            <div class="col-md-10 col-lg-10 col-sm-12 offset-sm-0 offset-lg-1 offset-md-1">
+                <div id="content">
+                    <table class="table table-sm table-bordered table-hover">
+                        <thead class="text-center thead-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Full Name</th>
+                            <th>Needed Specialists</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for patient in pacients %}
+                            <tr>
+                                <td>{{ patient.id }}</td>
+                                <td>{{ patient.fullname }}</td>
+                                <td>
+                                    {% for spec in patient.specialty.all %}
+{#                                        {% for each in schedule %}#}
+{#                                            {% if spec.id == each.doctor.specialty_id %}#}
+                                                {{ spec.specialty_name }},
+{#                                            {% endif %}#}
+{#                                        {% endfor %}#}
+                                    {% endfor %}
+                                </td>
+                                <td class="text-center">
+                                    <a href="{% url 'specific_pacient' patient.id %}" class="btn btn-sm btn-secondary">VIEW</a>
+                                    <a href="{% url 'reg_device_pacients' patient.id %}" class="btn btn-sm btn-success">DEV</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="float-right">
+                        <button class="btn btn-info" data-toggle="modal" data-target="#exampleModal">+</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Create Patient:</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="{% url 'create_pacient' %}" method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="fullname">Fullname:</label>
+                            <input type="text" id="fullname" name="fullname" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Choose specialties: </label>
+                            <select name="specialty" id="specialty" class="form-control" multiple>
+                                {% for specialty in specialties %}
+                                    <option value="{{ specialty.id }}">{{ specialty.specialty_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <input type="submit" class="btn btn-danger float-right" value="SAVE">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+    </script>
+{% endblock %}

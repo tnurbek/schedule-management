@@ -1,0 +1,44 @@
+{% extends 'action/base.html' %}
+{% load static %}
+{% block jumbotron %}
+    <header class="masthead bg-primary text-white text-center">
+        <div class="container d-flex align-items-center flex-column">
+            <img class="masthead-avatar mb-5" src="{% static 'assets/img/avataaars.svg' %}" alt=""/>
+            <h1 class="masthead-heading text-uppercase mb-0">Euromedix Schedule Page</h1>
+            <div class="divider-custom divider-light">
+                <div class="divider-custom-line"></div>
+                <div class="divider-custom-icon"><i class="fas fa-medicine"></i></div>
+                <div class="divider-custom-line"></div>
+            </div>
+            <p class="masthead-subheading font-weight-light mb-0">You need to upload an excel file as parametrized</p>
+        </div>
+    </header>
+{% endblock %}
+
+{% block content %}
+    <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Upload</h2>
+    <div class="divider-custom">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon"><i class="fas fa-upload"></i></div>
+        <div class="divider-custom-line"></div>
+    </div>
+    <div class="row">
+        <div class="col-md-8 offset-2">
+            <form action="{% url 'upload' %}" method="post" class="form text-center" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input type="text" name="title" class="form-control" placeholder="Title...">
+                </div>
+                <div class="custom-file">
+                    <input type="file" name="file" class="custom-file-input" id="customFileLang" lang="en">
+                    <label class="custom-file-label" for="customFileLang">Choose an excel file...</label>
+                </div>
+                <br><br>
+                <input type="submit" value="SAVE" class="btn btn-dark float-left">
+            </form>
+        </div>
+    </div>
+    <br>
+    <br>
+    <br>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'action/base.html' %}
+{% load static %}
+{% block jumbotron %}
+    <br><br>
+{% endblock %}
+
+{% block content %}
+    <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">SIGN IN</h2>
+    <div class="divider-custom">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon"><i class="fas fa-sign-in-alt"></i></div>
+        <div class="divider-custom-line"></div>
+    </div>
+    <div class="row">
+        <div class="container table-responsive">
+            <form action="{% url 'signin' %}" class="form" method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <br>
+                <input type="submit" class="btn btn-secondary" value="SIGNIN">
+            </form>
+        </div>
+    </div>
+{% endblock %}

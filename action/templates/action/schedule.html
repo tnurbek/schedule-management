@@ -1,0 +1,31 @@
+{% extends 'action/base.html' %}
+{% load static %}
+{% block jumbotron %}
+    <br><br>
+{% endblock %}
+
+{% block content %}
+    <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Get Result</h2>
+    <div class="divider-custom">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon"><i class="fas fa-download"></i></div>
+        <div class="divider-custom-line"></div>
+    </div>
+    <div class="row">
+        <div class="col-md-8 offset-2">
+            {{ action.id }}
+            <br>
+            {{ action.title }}
+            <br>
+            {{ action.file }}
+            <br>
+            <br>
+            <a href="{% url 'getresult' action.id %}" class="btn btn-secondary">GET WHOLE RESULT</a>
+        </div>
+    </div>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+{% endblock %}
